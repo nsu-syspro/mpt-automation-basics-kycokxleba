@@ -7,7 +7,7 @@ VERSION := $(shell jq -r .version config.json)
 TARGETDIR := build
 TARGET := $(TARGETDIR)/$(NAME)
 SRC := src/wordcount.c
-TESTS := $(sort $(wildcard test/*.txt))
+TESTS := $(wildcard test/*.txt)
 TEST_TARGETS := $(TESTS:.txt=.test)
 
 .PHONY: all clean check
@@ -18,10 +18,10 @@ $(TARGET): $(SRC) config.json
 	@mkdir -p $(TARGETDIR)
 	$(CC) $(CFLAGS) -DNAME=\"$(NAME)\" -DVERSION=\"$(VERSION)\" $(SRC) -o $(TARGET)
 
-
 check: $(TEST_TARGETS)
-	test/%.test: test/%.txt test/%.expected $(TARGET)
-		./$(TARGET) $< | diff -u test/$*.expected -
+
+test/%.test: test/%.txt test/%.expected $(TARGET)
+	@./$(TARGET) $< | diff -u test/$*.expected -
 
 clean:
 	rm -rf $(TARGETDIR)
